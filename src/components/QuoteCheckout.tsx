@@ -1,7 +1,7 @@
 "use client";
 
-import StripeProvider from "./StripeProvider";
-import CheckoutForm from "./CheckoutForm";
+import StripeProvider from "@/components/StripeProvider";
+import CheckoutForm from "@/components/CheckoutForm";
 import { formatPrice } from "@/lib/utils";
 
 interface QuoteCheckoutProps {
