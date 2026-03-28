@@ -4,7 +4,7 @@ import React, { Component, useRef, useMemo, useState, useEffect, Suspense } from
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows, Grid, Text } from "@react-three/drei";
 import * as THREE from "three";
-import { CustomBuildConfig } from "@/types";
+import { CustomBuildConfig, SOLID_COLORS } from "@/types";
 
 /* ── Debug log overlay for mobile ────────────────────────── */
 const debugLogs: string[] = [];
@@ -140,17 +140,40 @@ function useCedarTexture(tint: string = CEDAR) {
 
 /* ── Single wall panel ───────────────────────────────────── */
 function WallPanel({
-  width, height, position, rotation,
+  width, height, position, rotation, color, interiorFace,
 }: {
   width: number; height: number;
   position: [number, number, number];
   rotation?: [number, number, number];
+  color?: string;
+  interiorFace?: 4 | 5; // boxGeometry index: 4 = +Z, 5 = -Z
 }) {
-  const tex = useCedarTexture();
+  const isPainted = !!color && color !== CEDAR;
+  const cedarTex = useCedarTexture(CEDAR);
+
+  // boxGeometry face order: +X(0), -X(1), +Y(2), -Y(3), +Z(4), -Z(5)
+  const materials = useMemo(() => {
+    const cedarMat = new THREE.MeshStandardMaterial({
+      map: cedarTex, color: new THREE.Color(CEDAR), roughness: 0.75,
+    });
+    if (!isPainted) {
+      return [cedarMat, cedarMat, cedarMat, cedarMat, cedarMat, cedarMat];
+    }
+    // Painted exterior: flat uniform color, no lighting
+    const paintMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(color) });
+    // Start with all faces painted
+    const mats = [paintMat, paintMat, cedarMat, cedarMat, paintMat, paintMat];
+    // Keep interior broad face as cedar
+    if (interiorFace !== undefined) {
+      mats[interiorFace] = cedarMat;
+    }
+    return mats;
+  }, [isPainted, color, cedarTex, interiorFace]);
+
   return (
-    <mesh position={position} rotation={rotation} castShadow receiveShadow>
+    <mesh position={position} rotation={rotation} castShadow receiveShadow
+      material={materials}>
       <boxGeometry args={[width, height, BOARD_T]} />
-      <meshStandardMaterial map={tex} color={CEDAR} roughness={0.75} />
     </mesh>
   );
 }
@@ -162,25 +185,32 @@ function PlanterModel({ config }: { config: CustomBuildConfig }) {
   const wallH = (config.height ?? 2) * 0.35; // dynamic height
   const baseY = config.hasLegs ? LEG_H : 0;
   const cy = baseY + wallH / 2;   // wall centre Y
+
+  // Resolve paint color for exterior + legs
+  const paintHex = config.paintOption === "solid" && config.paintColor
+    ? SOLID_COLORS.find((c) => c.value === config.paintColor)?.hex ?? undefined
+    : undefined;
+  const wallColor = paintHex ?? CEDAR;
+  const legColor = paintHex ?? CEDAR_DARK;
   const bottomTex = useCedarTexture(CEDAR_BOTTOM);
 
   return (
     <group>
       {/* ─ Four walls ─ */}
-      {/* Front (+Z) */}
+      {/* Front (+Z): interior face is -Z (index 5) */}
       <WallPanel width={W} height={wallH}
-        position={[0, cy, L / 2]} />
-      {/* Back (-Z) */}
+        position={[0, cy, L / 2]} color={wallColor} interiorFace={5} />
+      {/* Back (-Z): interior face is +Z (index 4) */}
       <WallPanel width={W} height={wallH}
-        position={[0, cy, -L / 2]} />
-      {/* Right (+X) */}
+        position={[0, cy, -L / 2]} color={wallColor} interiorFace={4} />
+      {/* Right (+X, rotated): interior face is -Z (index 5, maps to -X in world) */}
       <WallPanel width={L} height={wallH}
         position={[W / 2, cy, 0]}
-        rotation={[0, Math.PI / 2, 0]} />
-      {/* Left (-X) */}
+        rotation={[0, Math.PI / 2, 0]} color={wallColor} interiorFace={5} />
+      {/* Left (-X, rotated): interior face is +Z (index 4, maps to +X in world) */}
       <WallPanel width={L} height={wallH}
         position={[-W / 2, cy, 0]}
-        rotation={[0, Math.PI / 2, 0]} />
+        rotation={[0, Math.PI / 2, 0]} color={wallColor} interiorFace={4} />
 
       {/* ─ Corner posts ─ */}
       {[
@@ -190,7 +220,11 @@ function PlanterModel({ config }: { config: CustomBuildConfig }) {
         <mesh key={`post-${i}`}
           position={[px, baseY + wallH / 2, pz]} castShadow>
           <boxGeometry args={[BOARD_T + 0.02, wallH + 0.02, BOARD_T + 0.02]} />
-          <meshStandardMaterial color={POST_COLOR} roughness={0.8} />
+          {paintHex ? (
+            <meshBasicMaterial color={paintHex} />
+          ) : (
+            <meshStandardMaterial color={POST_COLOR} roughness={0.8} />
+          )}
         </mesh>
       ))}
 
@@ -203,7 +237,11 @@ function PlanterModel({ config }: { config: CustomBuildConfig }) {
       ].map(([lx, lz], i) => (
         <mesh key={`leg-${i}`} position={[lx, LEG_H / 2, lz]} castShadow>
           <boxGeometry args={[LEG_W, LEG_H, LEG_W]} />
-          <meshStandardMaterial color={CEDAR_DARK} roughness={0.8} />
+          {paintHex ? (
+            <meshBasicMaterial color={paintHex} />
+          ) : (
+            <meshStandardMaterial color={legColor} roughness={0.8} />
+          )}
         </mesh>
       ))}
 
