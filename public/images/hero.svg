@@ -1,0 +1,24 @@
+<svg width="1600" height="700" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="700" fill="#3d6b4a"/>
+  <!-- Sun -->
+  <circle cx="1300" cy="150" r="80" fill="#f5c542" opacity="0.9"/>
+  <!-- Ground -->
+  <rect x="0" y="450" width="1600" height="250" fill="#4a7c59"/>
+  <!-- Planter -->
+  <rect x="400" y="320" width="500" height="180" rx="8" fill="#d4a574" stroke="#b8956a" stroke-width="4"/>
+  <rect x="415" y="335" width="470" height="150" rx="4" fill="#8B6914" opacity="0.15"/>
+  <!-- Plants -->
+  <circle cx="480" cy="300" r="40" fill="#5a8c69"/>
+  <circle cx="560" cy="270" r="50" fill="#4a7c59"/>
+  <circle cx="650" cy="280" r="45" fill="#6a9c79"/>
+  <circle cx="740" cy="265" r="52" fill="#5a8c69"/>
+  <circle cx="830" cy="285" r="38" fill="#3d6b4a"/>
+  <circle cx="520" cy="250" r="30" fill="#6a9c79"/>
+  <circle cx="700" cy="240" r="35" fill="#4a7c59"/>
+  <circle cx="790" cy="255" r="28" fill="#6a9c79"/>
+  <!-- Flowers -->
+  <circle cx="500" cy="260" r="8" fill="#e85d75"/>
+  <circle cx="620" cy="245" r="8" fill="#f5c542"/>
+  <circle cx="740" cy="240" r="8" fill="#e85d75"/>
+  <circle cx="810" cy="258" r="8" fill="#f5c542"/>
+</svg>

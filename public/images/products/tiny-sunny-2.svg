@@ -1,0 +1,11 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#ebe5df"/>
+  <rect x="250" y="220" width="300" height="200" rx="8" fill="#c49a6c" stroke="#b8956a" stroke-width="3"/>
+  <rect x="260" y="230" width="280" height="180" rx="4" fill="#8B6914" opacity="0.15"/>
+  <circle cx="340" cy="310" r="15" fill="#4a7c59"/>
+  <circle cx="400" cy="290" r="20" fill="#5a8c69"/>
+  <circle cx="460" cy="305" r="18" fill="#3d6b4a"/>
+  <circle cx="370" cy="340" r="12" fill="#6a9c79"/>
+  <circle cx="430" cy="330" r="14" fill="#4a7c59"/>
+  <text x="400" y="500" font-family="sans-serif" font-size="22" fill="#9c8b7a" text-anchor="middle">Tiny Sunny — With Herbs</text>
+</svg>
